@@ -1,0 +1,20 @@
+<component name="InspectionProjectProfileManager">
+  <profile version="1.0">
+    <option name="myName" value="Project Default" />
+    <inspection_tool class="PyUnresolvedReferencesInspection" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="ignoredIdentifiers">
+        <list>
+          <option value="range.__truediv__" />
+          <option value="selenium.webdriver.chrome.webdriver.WebDriver.find_element_by_xpath" />
+          <option value="list.click" />
+          <option value="selenium.webdriver.common.devtools.v111.browser.find_element" />
+          <option value="MainPage.MainPage.*" />
+          <option value="conftest.webdriver_manager" />
+          <option value="bool.status_name" />
+          <option value="bool.status_down" />
+          <option value="bool.status_up" />
+        </list>
+      </option>
+    </inspection_tool>
+  </profile>
+</component>
