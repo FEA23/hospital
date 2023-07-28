@@ -1,3 +1,5 @@
+from patient import Patient
+
 
 class Commands:
     GET_STATUS = ('узнать статус пациента', 'get status')
@@ -6,8 +8,6 @@ class Commands:
     DISCHARGE = ('выписать пациента', 'discharge')
     CALCULATE_STATISTICS = ('рассчитать статистику', 'calculate statistic')
     STOP = ('стоп', 'stop')
-
-
 
     def __init__(self, command: str):
         self.command = command
@@ -22,28 +22,54 @@ class Commands:
 
     def correct(self):
         for command_tuple in self.commands:
-            if self.command.strip() in command_tuple:
+            if self.command in command_tuple:
                 return True
 
         return False
-
-
+    
     def is_get_status(self):
-        return self.command.strip() in self.GET_STATUS
-
+        return self.command in self.GET_STATUS
 
     def is_up_status(self):
-        return self.command.strip() in self.STATUS_UP
+        return self.command in self.STATUS_UP
 
     def is_down_status(self):
-        return self.command.strip() in self.STATUS_DOWN
+        return self.command in self.STATUS_DOWN
 
     def is_discharge(self):
-        return self.command.strip() in self.DISCHARGE
+        return self.command in self.DISCHARGE
 
     def is_statistic(self):
-        return self.command.strip() in self.CALCULATE_STATISTICS
-
+        return self.command in self.CALCULATE_STATISTICS
+    
     def is_stop(self):
-        return self.command.strip() in self.STOP
+        return self.command in self.STOP
 
+
+class CommandHandlers:
+
+    def __init__(self, dialogue, hospital) -> None:
+        self.dialogue = dialogue
+        self.hospital = hospital
+
+    def discharge(self, patient: Patient):
+        need_discharge = self.dialogue.user_input_need_discharge_patient()
+        if need_discharge:
+            self.hospital.discharge(patient)
+            print('Пациент выписан из больницы')
+        else:
+            print('Пациент остался в статусе "{}"'.format(patient.status_name))
+
+    def status_down(self, patient: Patient):
+        down_is_succesfully = patient.status_down()
+        if down_is_succesfully:
+            print('Новый статус пациента: {}'.format(patient.status_name))
+        else:
+            print('Ошибка. Нельзя понизить самый низкий статус (наши пациенты не умирают)')
+
+    def status_up(self, patient: Patient):
+        up_is_succesfully = patient.status_up()
+        if up_is_succesfully:
+            print('Новый статус пациента: {}'.format(patient.status_name))
+        else:
+            self.discharge(patient)

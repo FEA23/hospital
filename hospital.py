@@ -1,12 +1,8 @@
-from patient import Patient
+from patient import Patient, PATIENT_STATUSES
 
 
 class Hospital:
     PATIENTS = [Patient(i) for i in range(1, 201)]
-    STATUSES = {0: 'Тяжело болен', 1: 'Болен', 2: 'Слегка болен', 3: 'Готов к выписке'}
-
-    def get_patients_by_status(self, status: int) -> list:
-        return [patient for patient in self.PATIENTS if patient.status == status]
 
     def get_patient_by_id(self, id: int) -> Patient or None:
         for patient in self.PATIENTS:
@@ -27,6 +23,6 @@ class Hospital:
         statistics = f'В больнице на данный момент находится {len(self.PATIENTS)} чел., из них:\n'
         for status_code, count in status_count.items():
             if count > 0:
-                statistics += f'- в статусе "{self.STATUSES[status_code]}": {count} чел.\n'
+                statistics += f'- в статусе "{PATIENT_STATUSES[status_code]}": {count} чел.\n'
 
         return statistics

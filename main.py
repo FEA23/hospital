@@ -1,8 +1,48 @@
 from hospital import Hospital
-from session import Session
+from dialogue import Dialogue
+from commands import Commands, CommandHandlers
+
+hospital = Hospital()
+dialogue = Dialogue(hospital)
+
+command_handlers = CommandHandlers(dialogue, hospital)
 
 
 if __name__ == '__main__':
-    hospital = Hospital()
-    session = Session(hospital)
-    session.start()
+    while True:
+        command: Commands = dialogue.user_input_main_command()
+
+        if not command.correct():
+            print('Неизвестная команда! Попробуйте ещё раз')
+            continue
+                    
+        if command.is_statistic():
+            hospital_stats = hospital.calculate_statistics()
+            print(hospital_stats)
+            continue
+
+        if command.is_stop():
+            print('Сеанс завершён.')
+            break
+
+        patient_id = dialogue.user_input_patient_id()
+        if patient_id is None:
+            print('Ошибка. ID пациента должно быть числом (целым, положительным)')
+            continue
+
+        patient = hospital.get_patient_by_id(patient_id)
+        if patient is None:
+            print('Ошибка. В больнице нет пациента с таким ID')
+            continue
+
+        if command.is_discharge():
+            command_handlers.discharge(patient)
+
+        if command.is_get_status():
+            print('Статус пациента: {}'.format(patient.status_name))
+
+        if command.is_down_status():
+            command_handlers.status_down(patient)
+        
+        if command.is_up_status():
+            command_handlers.status_up(patient)
