@@ -3,7 +3,6 @@ from hospital import Hospital
 from commands import Commands
 
 
-
 class Dialogue:
     def __init__(self, hospital: Hospital):
         self.hospital = hospital
@@ -23,7 +22,7 @@ class Dialogue:
 
         return None
 
-    def user_input_need_discharge_patient(self) -> Union[bool, None]:
+    def user_input_need_discharge_patient(self) -> bool:
         need_discharge = self._format_user_response(self.discharge_question_for_user)
         return True if need_discharge == 'да' else False
     
