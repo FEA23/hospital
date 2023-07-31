@@ -39,7 +39,7 @@ if __name__ == '__main__':
             command_handlers.discharge(patient)
 
         if command.is_get_status():
-            print('Статус пациента: {}'.format(patient.status_name))
+            command_handlers.get_status(patient)
 
         if command.is_down_status():
             command_handlers.status_down(patient)

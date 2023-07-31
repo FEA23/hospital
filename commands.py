@@ -49,16 +49,15 @@ class Commands:
 class CommandHandlers:
 
     def __init__(self, dialogue, hospital) -> None:
-        self.dialogue = dialogue
-        self.hospital = hospital
+        self._dialogue = dialogue
+        self._hospital = hospital
+
+    def get_status(self, patient: Patient):
+        print('Статус пациента: {}'.format(patient.status_name))
 
     def discharge(self, patient: Patient):
-        need_discharge = self.dialogue.user_input_need_discharge_patient()
-        if need_discharge:
-            self.hospital.discharge(patient)
-            print('Пациент выписан из больницы')
-        else:
-            print('Пациент остался в статусе "{}"'.format(patient.status_name))
+        self._hospital.discharge(patient.id)
+        print('Пациент выписан из больницы')
 
     def status_down(self, patient: Patient):
         down_is_succesfully = patient.status_down()
@@ -72,4 +71,8 @@ class CommandHandlers:
         if up_is_succesfully:
             print('Новый статус пациента: {}'.format(patient.status_name))
         else:
-            self.discharge(patient)
+            need_discharge = self._dialogue.user_input_need_discharge_patient()
+            if need_discharge:
+                self.discharge(patient)
+            else:
+                print('Пациент остался в статусе "{}"'.format(patient.status_name))
