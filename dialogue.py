@@ -1,8 +1,7 @@
 from typing import Union
-
 from hospital import Hospital
 from commands import Commands
-from patient import Patient
+
 
 
 class Dialogue:
@@ -17,14 +16,14 @@ class Dialogue:
         user_answer = input(command_for_user)
         return user_answer.lower().strip()   
 
-    def user_input_patient_id(self) -> Union[Patient, None]:
+    def user_input_patient_id(self) -> Union[int, None]:
         patient_id = self._format_user_response(self.patient_id_text_for_user)
         if patient_id.isdigit():
             return int(patient_id)
 
         return None
 
-    def user_input_need_discharge_patient(self) -> Union[Patient, None]:
+    def user_input_need_discharge_patient(self) -> Union[bool, None]:
         need_discharge = self._format_user_response(self.discharge_question_for_user)
         return True if need_discharge == 'да' else False
     
