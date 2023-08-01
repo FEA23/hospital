@@ -5,16 +5,16 @@ from patient import Patient
 from dialogue import Dialogue
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture
 def hospital():
     return Hospital()
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture
 def patient():
     return Patient(patient_id=1)
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture
 def dialogue(hospital):
     return Dialogue(hospital)
