@@ -37,8 +37,8 @@ def test_is_discharge():
 
 
 def test_negative_is_discharge():
-    assert Commands('удалить пациента').is_discharge()
-    assert Commands('delete').is_discharge()
+    assert not Commands('удалить пациента').is_discharge()
+    assert not Commands('delete').is_discharge()
 
 
 def test_is_statistic():
