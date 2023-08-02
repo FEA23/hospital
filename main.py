@@ -17,7 +17,7 @@ if __name__ == '__main__':
             continue
                     
         if command.is_statistic():
-            hospital_stats = hospital.calculate_statistics()
+            hospital_stats = hospital.display_statistics()
             print(hospital_stats)
             continue
 
