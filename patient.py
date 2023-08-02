@@ -23,14 +23,14 @@ class Patient:
         return PATIENT_STATUSES.get(self.status_id)
 
     def status_up(self) -> bool:
-        if self.status_id == self._max_status_id:
+        if self.status_id >= self._max_status_id:
             return False
         else:
             self._set_status(self.status_id + 1)
             return True
 
     def status_down(self) -> bool:
-        if self.status_id == self._min_status_id:
+        if self.status_id <= self._min_status_id:
             return False
         else:
             self._set_status(self.status_id - 1)
