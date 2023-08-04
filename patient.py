@@ -9,9 +9,9 @@ PATIENT_STATUSES = {
 
 class Patient:
 
-    def __init__(self, patient_id: int):
+    def __init__(self, patient_id: int, status_id=1):
         self.id = patient_id
-        self.status_id = 1
+        self.status_id = status_id
         self._max_status_id = max(PATIENT_STATUSES.keys())
         self._min_status_id = min(PATIENT_STATUSES.keys())
 

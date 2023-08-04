@@ -3,7 +3,7 @@ from dialogue import Dialogue
 from commands import Commands, CommandHandlers
 
 hospital = Hospital()
-dialogue = Dialogue(hospital)
+dialogue = Dialogue()
 
 command_handlers = CommandHandlers(dialogue, hospital)
 

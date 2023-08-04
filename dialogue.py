@@ -4,8 +4,7 @@ from commands import Commands
 
 
 class Dialogue:
-    def __init__(self, hospital: Hospital):
-        self._hospital = hospital
+    def __init__(self):
         self._main_command_text_for_user = 'Введите команду: '
         self._discharge_question_for_user = 'Желаете этого клиента выписать? (да/нет): '
         self._patient_id_text_for_user = 'Введите ID пациента: '

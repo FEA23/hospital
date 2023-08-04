@@ -4,21 +4,27 @@ from patient import Patient
 
 def test_discharge():
     hospital = Hospital()
-    patient_id = 123
-    hospital.discharge(patient_id)
-    assert hospital.get_patient_by_id(patient_id) == None
+    hospital.discharge(123)
+    assert hospital.get_patient_by_id(123) is None
 
 
 def test_calculate_statistics():
-    patient_status_id = 2
     hospital = Hospital()
-    patient = Patient(23)
-    patient._set_status(patient_status_id)
-    hospital.PATIENTS = [patient]
-    stats = hospital.calculate_statistics()
-    assert stats[patient_status_id] == 1
+    hospital._PATIENTS = [
+        Patient(23, status_id=0),
+        Patient(77, status_id=1),
+        Patient(123, status_id=2),
+        Patient(200, status_id=3)
+    ]
+    stats = hospital._calculate_statistics()
+    assert stats == {0: 1, 1: 1, 2: 1, 3: 1}
 
 
-def test_display_statistics():
+def test_statistics_to_str():
     hospital = Hospital()
-    assert isinstance(hospital.display_statistics(), str)
+    result = hospital._statistics_to_str(hospital._calculate_statistics())
+    expected_result = (
+        "В больнице на данный момент находится 200 чел., из них:\n"
+        "- в статусе \"Болен\": 200 чел.\n"
+    )
+    assert expected_result in result
