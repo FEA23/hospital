@@ -7,7 +7,6 @@ dialogue = Dialogue()
 
 command_handlers = CommandHandlers(dialogue, hospital)
 
-
 if __name__ == '__main__':
     while True:
         command: Commands = dialogue.user_input_main_command()
@@ -15,7 +14,7 @@ if __name__ == '__main__':
         if not command.correct():
             print('Неизвестная команда! Попробуйте ещё раз')
             continue
-                    
+
         if command.is_statistic():
             hospital_stats = hospital.display_statistics()
             print(hospital_stats)
@@ -31,18 +30,18 @@ if __name__ == '__main__':
             continue
 
         patient = hospital.get_patient_by_id(patient_id)
-        if patient is None:
+        if not patient:
             print('Ошибка. В больнице нет пациента с таким ID')
             continue
 
         if command.is_discharge():
-            command_handlers.discharge(patient)
+            command_handlers.discharge(patient_id)
 
         if command.is_get_status():
-            command_handlers.get_status(patient)
+            command_handlers.get_status(patient_id)
 
         if command.is_down_status():
-            command_handlers.status_down(patient)
-        
+            command_handlers.status_down(patient_id)
+
         if command.is_up_status():
-            command_handlers.status_up(patient)
+            command_handlers.status_up(patient_id)

@@ -1,5 +1,4 @@
 from typing import Union
-from hospital import Hospital
 from commands import Commands
 
 
