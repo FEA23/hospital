@@ -23,10 +23,6 @@ class Hospital:
         patient = self.get_patient_by_id(patient_id)
         return patient.status_name if patient else None
 
-    def get_status_id_by_patient_id(self, patient_id: int) -> int:
-        patient = self.get_patient_by_id(patient_id)
-        return patient.status_id if patient else None
-
     def patient_status_down(self, patient_id: int) -> Tuple[Patient, bool]:
         patient = self.get_patient_by_id(patient_id)
         if patient.status_id <= self._min_status_id:

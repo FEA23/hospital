@@ -44,11 +44,6 @@ def test_get_status_name_by_patient_id():
     assert hospital.get_status_name_by_patient_id(77) == 'Тяжело болен'
 
 
-def test_get_status_id_by_patient_id():
-    hospital = Hospital(patients=[Patient(id=77, status_id=0)])
-    assert hospital.get_status_id_by_patient_id(77) == 0
-
-
 def test_status_up():
     hospital = Hospital(patients=[Patient(id=77, status_id=1)])
     patient, up_is_succesfully = hospital.patient_status_up(77)
