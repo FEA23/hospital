@@ -81,7 +81,7 @@ def test_handler_get_status(capsys):
 
 def test_handler_status_up(capsys):
     command_handlers.status_up(1)
-    patient = hospital.get_patient_by_id(1)
+    patient = hospital._get_patient_by_id(1)
     captured_status_up = capsys.readouterr()
     assert patient.status_id == 2
     assert captured_status_up.out == 'Новый статус пациента: Слегка болен\n'
@@ -90,7 +90,7 @@ def test_handler_status_up(capsys):
 def test_user_refused_status_up(capsys, monkeypatch):
     monkeypatch.setattr('builtins.input', lambda _: 'нет')
     command_handlers.status_up(patient_id=2)
-    patient = hospital.get_patient_by_id(patient_id=2)
+    patient = hospital._get_patient_by_id(patient_id=2)
     captured_status_up = capsys.readouterr()
     assert patient.status_id == 3
     assert captured_status_up.out == 'Пациент остался в статусе "Готов к выписке"\n'
@@ -100,13 +100,13 @@ def test_user_agreed_status_up(capsys, monkeypatch):
     monkeypatch.setattr('builtins.input', lambda _: 'да')
     command_handlers.status_up(patient_id=2)
     captured_status_up = capsys.readouterr()
-    assert hospital.get_patient_by_id(patient_id=2) is None
+    assert hospital._get_patient_by_id(patient_id=2) is None
     assert captured_status_up.out == 'Пациент выписан из больницы\n'
 
 
 def test_handler_status_down(capsys):
     command_handlers.status_down(patient_id=1)
-    patient = hospital.get_patient_by_id(patient_id=1)
+    patient = hospital._get_patient_by_id(patient_id=1)
     captured_status_down = capsys.readouterr()
     assert patient.status_id == 0
     assert captured_status_down.out == 'Новый статус пациента: Тяжело болен\n'
@@ -114,7 +114,7 @@ def test_handler_status_down(capsys):
 
 def test_negative_handler_status_down(capsys):
     command_handlers.status_down(patient_id=3)
-    patient = hospital.get_patient_by_id(patient_id=3)
+    patient = hospital._get_patient_by_id(patient_id=3)
     captured_status_down = capsys.readouterr()
     assert patient.status_id == 0
     expected_result = 'Ошибка. Нельзя понизить самый низкий статус (наши пациенты не умирают)\n'
@@ -124,5 +124,5 @@ def test_negative_handler_status_down(capsys):
 def test_handler_discharge(capsys):
     command_handlers.discharge(patient_id=1)
     captured_discharge = capsys.readouterr()
-    assert hospital.get_patient_by_id(1) is None
+    assert hospital._get_patient_by_id(1) is None
     assert captured_discharge.out == 'Пациент выписан из больницы\n'

@@ -29,11 +29,6 @@ if __name__ == '__main__':
             print('Ошибка. ID пациента должно быть числом (целым, положительным)')
             continue
 
-        patient = hospital.get_patient_by_id(patient_id)
-        if not patient:
-            print('Ошибка. В больнице нет пациента с таким ID')
-            continue
-
         if command.is_discharge():
             command_handlers.discharge(patient_id)
 

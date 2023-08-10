@@ -52,27 +52,34 @@ class CommandHandlers:
         self._hospital = hospital
 
     def get_status(self, patient_id: int):
-        patient_status_name = self._hospital.get_status_name_by_patient_id(patient_id)
-        print('Статус пациента: {}'.format(patient_status_name))
+        if self._hospital.patient_exists(patient_id):
+            patient_status_name = self._hospital.get_status_name_by_patient_id(patient_id)
+            print(f'Статус пациента: {patient_status_name}')
 
     def discharge(self, patient_id: int):
-        self._hospital.discharge(patient_id)
-        print('Пациент выписан из больницы')
+        if self._hospital.patient_exists(patient_id):
+            self._hospital.discharge(patient_id)
+            print('Пациент выписан из больницы')
 
     def status_down(self, patient_id: int):
-        patient, down_is_succesfully = self._hospital.patient_status_down(patient_id)
-        if down_is_succesfully:
-            print('Новый статус пациента: {}'.format(patient.status_name))
-        else:
-            print('Ошибка. Нельзя понизить самый низкий статус (наши пациенты не умирают)')
+        if self._hospital.patient_exists(patient_id):
+            if self._hospital.can_status_down(patient_id):
+                self._hospital.patient_status_down(patient_id)
+                new_status_name = self._hospital.get_status_name_by_patient_id(patient_id)
+                print(f'Новый статус пациента: {new_status_name}')
+            else:
+                print('Ошибка. Нельзя понизить самый низкий статус (наши пациенты не умирают)')
 
     def status_up(self, patient_id: int):
-        patient, up_is_succesfully = self._hospital.patient_status_up(patient_id)
-        if up_is_succesfully:
-            print('Новый статус пациента: {}'.format(patient.status_name))
-        else:
-            need_discharge = self._dialogue.user_input_need_discharge_patient()
-            if need_discharge:
-                self.discharge(patient_id)
+        if self._hospital.patient_exists(patient_id):
+            if self._hospital.can_status_up(patient_id):
+                self._hospital.patient_status_up(patient_id)
+                new_status_name = self._hospital.get_status_name_by_patient_id(patient_id)
+                print(f'Новый статус пациента: {new_status_name}')
             else:
-                print('Пациент остался в статусе "{}"'.format(patient.status_name))
+                need_discharge = self._dialogue.user_input_need_discharge_patient()
+                if need_discharge:
+                    self.discharge(patient_id)
+                else:
+                    status_name = self._hospital.get_status_name_by_patient_id(patient_id)
+                    print(f'Пациент остался в статусе "{status_name}"')

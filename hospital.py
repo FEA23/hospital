@@ -1,5 +1,3 @@
-from typing import Tuple
-
 from patient import Patient, PATIENT_STATUSES
 
 
@@ -13,34 +11,34 @@ class Hospital:
         self._max_status_id = max(PATIENT_STATUSES.keys())
         self._min_status_id = min(PATIENT_STATUSES.keys())
 
-    def get_patient_by_id(self, patient_id: int) -> Patient or None:
+    def _get_patient_by_id(self, patient_id: int) -> Patient or None:
         for patient in self._patients:
             if patient.id == patient_id:
                 return patient
         return None
 
     def get_status_name_by_patient_id(self, patient_id: int) -> str:
-        patient = self.get_patient_by_id(patient_id)
+        patient = self._get_patient_by_id(patient_id)
         return patient.status_name if patient else None
 
-    def patient_status_down(self, patient_id: int) -> Tuple[Patient, bool]:
-        patient = self.get_patient_by_id(patient_id)
-        if patient.status_id <= self._min_status_id:
-            return patient, False
-        else:
-            patient.status_id -= 1
-            return patient, True
+    def can_status_down(self, patient_id: int) -> bool:
+        patient = self._get_patient_by_id(patient_id)
+        return patient.status_id > self._min_status_id
 
-    def patient_status_up(self, patient_id: int) -> Tuple[Patient, bool]:
-        patient = self.get_patient_by_id(patient_id)
-        if patient.status_id >= self._max_status_id:
-            return patient, False
-        else:
-            patient.status_id += 1
-            return patient, True
+    def patient_status_down(self, patient_id: int):
+        patient = self._get_patient_by_id(patient_id)
+        patient.status_id -= 1
 
-    def discharge(self, patient_id):
-        patient = self.get_patient_by_id(patient_id)
+    def can_status_up(self, patient_id: int) -> bool:
+        patient = self._get_patient_by_id(patient_id)
+        return patient.status_id < self._max_status_id
+
+    def patient_status_up(self, patient_id: int):
+        patient = self._get_patient_by_id(patient_id)
+        patient.status_id += 1
+
+    def discharge(self, patient_id: int):
+        patient = self._get_patient_by_id(patient_id)
         if patient in self._patients:
             self._patients.remove(patient)
 
@@ -63,3 +61,11 @@ class Hospital:
         status_count = self._calculate_statistics()
         str_stats = self._statistics_to_str(status_count)
         return str_stats
+
+    def patient_exists(self, patient_id):
+        patient = self._get_patient_by_id(patient_id)
+        if not patient:
+            print('Ошибка. В больнице нет пациента с таким ID')
+            return False
+        else:
+            return True
