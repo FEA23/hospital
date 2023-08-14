@@ -1,6 +1,14 @@
 from patient import Patient, PATIENT_STATUSES
 
 
+class CantLowerStatusError(Exception):
+    pass
+
+
+class CantIncreaseStatusError(Exception):
+    pass
+
+
 class Hospital:
     def __init__(self, patients=None):
         if patients:
@@ -26,6 +34,8 @@ class Hospital:
         return patient.status_id > self._min_status_id
 
     def patient_status_down(self, patient_id: int):
+        if not self.can_status_down(patient_id):
+            raise CantLowerStatusError("Нельзя понизить минимальный статус пациента.")
         patient = self._get_patient_by_id(patient_id)
         patient.status_id -= 1
 
@@ -34,6 +44,8 @@ class Hospital:
         return patient.status_id < self._max_status_id
 
     def patient_status_up(self, patient_id: int):
+        if not self.can_status_up(patient_id):
+            raise CantIncreaseStatusError("Нельзя повысить максимальный статус")
         patient = self._get_patient_by_id(patient_id)
         patient.status_id += 1
 
@@ -64,8 +76,4 @@ class Hospital:
 
     def patient_exists(self, patient_id):
         patient = self._get_patient_by_id(patient_id)
-        if not patient:
-            print('Ошибка. В больнице нет пациента с таким ID')
-            return False
-        else:
-            return True
+        return patient is not None

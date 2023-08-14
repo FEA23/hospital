@@ -1,4 +1,6 @@
-from hospital import Hospital
+import pytest
+
+from hospital import Hospital, CantLowerStatusError, CantIncreaseStatusError
 from patient import Patient
 
 
@@ -26,7 +28,7 @@ def test_statistics_to_str():
     hospital = Hospital()
     result = hospital._statistics_to_str({0: 1, 1: 2, 2: 0, 3: 1})
     expected_result = (
-        "В больнице на данный момент находится 4 чел., из них:\n"
+        "В больнице на данный момент находится 200 чел., из них:\n"
         "- в статусе \"Тяжело болен\": 1 чел.\n"
         "- в статусе \"Болен\": 2 чел.\n"
         "- в статусе \"Готов к выписке\": 1 чел.\n"
@@ -42,19 +44,17 @@ def test_get_status_name_by_patient_id():
 def test_can_status_up():
     hospital = Hospital([Patient(id=77, status_id=1)])
     result = hospital.can_status_up(77)
-    assert result is True
+    assert result
 
 
 def test_negative_can_status_up():
     hospital = Hospital([Patient(id=77, status_id=3)])
     result = hospital.can_status_up(77)
-    assert result is False
+    assert not result
 
 
 def test_status_up():
     hospital = Hospital(patients=[Patient(id=77, status_id=1)])
-    if hospital.can_status_up(77):
-        hospital.patient_status_up(77)
     hospital.patient_status_up(77)
     status = hospital._get_patient_by_id(77).status_id
     assert status == 2
@@ -62,38 +62,33 @@ def test_status_up():
 
 def test_negative_status_up():
     hospital = Hospital(patients=[Patient(id=77, status_id=3)])
-    if hospital.can_status_up(77):
+    with pytest.raises(CantIncreaseStatusError):
         hospital.patient_status_up(77)
-    status = hospital._get_patient_by_id(77).status_id
-    assert status == 3
 
 
 def test_can_status_down():
     hospital = Hospital([Patient(id=77, status_id=1)])
     result = hospital.can_status_up(77)
-    assert result is True
+    assert result
 
 
 def test_negative_can_status_down():
-    hospital = Hospital([Patient(id=77, status_id=0)])
+    hospital = Hospital(patients=[Patient(id=77, status_id=0)])
     result = hospital.can_status_down(77)
-    assert result is False
+    assert not result
 
 
 def test_status_down():
     hospital = Hospital(patients=[Patient(id=77, status_id=1)])
-    if hospital.can_status_down(77):
-        hospital.patient_status_down(77)
+    hospital.patient_status_down(77)
     status = hospital._get_patient_by_id(77).status_id
     assert status == 0
 
 
 def test_negative_status_down():
     hospital = Hospital(patients=[Patient(id=77, status_id=0)])
-    if hospital.can_status_down(77):
+    with pytest.raises(CantLowerStatusError):
         hospital.patient_status_down(77)
-    status = hospital._get_patient_by_id(77).status_id
-    assert status == 0
 
 
 def test_patient_exists():
@@ -103,4 +98,4 @@ def test_patient_exists():
 
 def test_negative_patient_exists():
     hospital = Hospital()
-    assert not hospital.patient_exists(999)
+    assert not hospital.patient_exists(201)

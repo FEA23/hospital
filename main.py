@@ -16,9 +16,7 @@ if __name__ == '__main__':
             continue
 
         if command.is_statistic():
-            hospital_stats = hospital.display_statistics()
-            print(hospital_stats)
-            continue
+            command_handlers.calculate_statistic()
 
         if command.is_stop():
             print('Сеанс завершён.')
@@ -27,6 +25,12 @@ if __name__ == '__main__':
         patient_id = dialogue.user_input_patient_id()
         if patient_id is None:
             print('Ошибка. ID пациента должно быть числом (целым, положительным)')
+            continue
+
+        #Надо будет убрать hospital
+        hospital.patient_exists(patient_id)
+        if not hospital.patient_exists(patient_id):
+            print('Ошибка. В больнице нет пациента с таким ID')
             continue
 
         if command.is_discharge():
