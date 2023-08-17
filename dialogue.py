@@ -27,4 +27,6 @@ class Dialogue:
         command = self._format_user_response(self._main_command_text_for_user)
         command = Commands(command)
         return command
-    
+
+    def user_print_message(self, message):
+        print(message)

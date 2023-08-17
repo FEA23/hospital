@@ -53,7 +53,7 @@ class CommandHandlers:
 
     def get_status(self, patient_id: int):
         patient_status_name = self._hospital.get_status_name_by_patient_id(patient_id)
-        print(f'Статус пациента: {patient_status_name}')
+        self._dialogue.user_print_message(f'Статус пациента: {patient_status_name}')
 
     def calculate_statistic(self):
         hospital_stats = self._hospital.display_statistics()
@@ -61,25 +61,25 @@ class CommandHandlers:
 
     def discharge(self, patient_id: int):
         self._hospital.discharge(patient_id)
-        print('Пациент выписан из больницы')
+        self._dialogue.user_print_message('Пациент выписан из больницы')
 
     def status_down(self, patient_id: int):
         if self._hospital.can_status_down(patient_id):
             self._hospital.patient_status_down(patient_id)
             new_status_name = self._hospital.get_status_name_by_patient_id(patient_id)
-            print(f'Новый статус пациента: {new_status_name}')
+            self._dialogue.user_print_message(f'Новый статус пациента: {new_status_name}')
         else:
-            print('Ошибка. Нельзя понизить самый низкий статус (наши пациенты не умирают)')
+            self._dialogue.user_print_message('Ошибка. Нельзя понизить самый низкий статус (наши пациенты не умирают)')
 
     def status_up(self, patient_id: int):
         if self._hospital.can_status_up(patient_id):
             self._hospital.patient_status_up(patient_id)
             new_status_name = self._hospital.get_status_name_by_patient_id(patient_id)
-            print(f'Новый статус пациента: {new_status_name}')
+            self._dialogue.user_print_message(f'Новый статус пациента: {new_status_name}')
         else:
             need_discharge = self._dialogue.user_input_need_discharge_patient()
             if need_discharge:
                 self.discharge(patient_id)
             else:
                 status_name = self._hospital.get_status_name_by_patient_id(patient_id)
-                print(f'Пациент остался в статусе "{status_name}"')
+                self._dialogue.user_print_message(f'Пациент остался в статусе "{status_name}"')

@@ -1,3 +1,4 @@
+from typing import Union
 from patient import Patient, PATIENT_STATUSES
 
 
@@ -25,7 +26,7 @@ class Hospital:
                 return patient
         return None
 
-    def get_status_name_by_patient_id(self, patient_id: int) -> str:
+    def get_status_name_by_patient_id(self, patient_id: int) -> Union[str, None]:
         patient = self._get_patient_by_id(patient_id)
         return patient.status_name if patient else None
 

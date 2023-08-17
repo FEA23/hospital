@@ -12,25 +12,24 @@ if __name__ == '__main__':
         command: Commands = dialogue.user_input_main_command()
 
         if not command.correct():
-            print('Неизвестная команда! Попробуйте ещё раз')
+            dialogue.user_print_message('Неизвестная команда! Попробуйте ещё раз')
             continue
 
         if command.is_statistic():
             command_handlers.calculate_statistic()
 
         if command.is_stop():
-            print('Сеанс завершён.')
+            dialogue.user_print_message('Сеанс завершён.')
             break
 
         patient_id = dialogue.user_input_patient_id()
         if patient_id is None:
-            print('Ошибка. ID пациента должно быть числом (целым, положительным)')
+            dialogue.user_print_message('Ошибка. ID пациента должно быть числом (целым, положительным)')
             continue
 
         #Надо будет убрать hospital
-        hospital.patient_exists(patient_id)
         if not hospital.patient_exists(patient_id):
-            print('Ошибка. В больнице нет пациента с таким ID')
+            dialogue.user_print_message('Ошибка. В больнице нет пациента с таким ID')
             continue
 
         if command.is_discharge():

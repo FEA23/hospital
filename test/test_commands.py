@@ -66,77 +66,76 @@ def test_negative_is_stop():
     assert not Commands('off').is_stop()
 
 
-def test_handler_get_status(capsys):
+def test_handler_get_status():
     hospital = Hospital(patients=[Patient(id=11, status_id=3)])
     dialogue = Dialogue()
     command_handlers = CommandHandlers(hospital=hospital, dialogue=dialogue)
+    dialogue.user_print_message = MagicMock()
     command_handlers.get_status(11)
-    captured_get_status = capsys.readouterr()
-    assert captured_get_status.out == 'Статус пациента: Готов к выписке\n'
+    dialogue.user_print_message.assert_called_once_with('Статус пациента: Готов к выписке')
 
 
-def test_handler_status_up(capsys):
+def test_handler_status_up():
     hospital = Hospital(patients=[Patient(id=10, status_id=1)])
     dialogue = Dialogue()
     command_handlers = CommandHandlers(hospital=hospital, dialogue=dialogue)
+    dialogue.user_print_message = MagicMock()
     command_handlers.status_up(10)
     patient = hospital._get_patient_by_id(10)
-    captured_status_up = capsys.readouterr()
     assert patient.status_id == 2
-    assert captured_status_up.out == 'Новый статус пациента: Слегка болен\n'
+    dialogue.user_print_message.assert_called_once_with('Новый статус пациента: Слегка болен')
 
 
-def test_user_refused_status_up(capsys):
+def test_user_refused_status_up():
     hospital = Hospital(patients=[Patient(id=11, status_id=3)])
     dialogue = Dialogue()
     command_handlers = CommandHandlers(hospital=hospital, dialogue=dialogue)
     dialogue.user_input_need_discharge_patient = MagicMock(return_value=False)
+    dialogue.user_print_message = MagicMock()
     command_handlers.status_up(patient_id=11)
     patient = hospital._get_patient_by_id(patient_id=11)
-    captured_status_up = capsys.readouterr()
     assert patient.status_id == 3
-    assert captured_status_up.out == 'Пациент остался в статусе "Готов к выписке"\n'
+    dialogue.user_print_message.assert_called_once_with('Пациент остался в статусе "Готов к выписке"')
 
 
-def test_user_agreed_status_up(capsys):
+def test_user_agreed_status_up():
     hospital = Hospital(patients=[Patient(id=11, status_id=3)])
     dialogue = Dialogue()
     command_handlers = CommandHandlers(hospital=hospital, dialogue=dialogue)
     dialogue.user_input_need_discharge_patient = MagicMock(return_value=True)
+    dialogue.user_print_message = MagicMock()
     command_handlers.status_up(patient_id=11)
-    captured_status_up = capsys.readouterr()
     assert hospital._get_patient_by_id(patient_id=11) is None
-    assert captured_status_up.out == 'Пациент выписан из больницы\n'
+    dialogue.user_print_message.assert_called_once_with('Пациент выписан из больницы')
 
 
-def test_handler_status_down(capsys):
+def test_handler_status_down():
     hospital = Hospital(patients=[Patient(id=10, status_id=1)])
     dialogue = Dialogue()
     command_handlers = CommandHandlers(hospital=hospital, dialogue=dialogue)
+    dialogue.user_print_message = MagicMock()
     command_handlers.status_down(patient_id=10)
     patient = hospital._get_patient_by_id(patient_id=10)
-    captured_status_down = capsys.readouterr()
     assert patient.status_id == 0
-    assert captured_status_down.out == 'Новый статус пациента: Тяжело болен\n'
+    dialogue.user_print_message.assert_called_once_with('Новый статус пациента: Тяжело болен')
 
 
-def test_negative_handler_status_down(capsys):
+def test_negative_handler_status_down():
     hospital = Hospital(patients=[Patient(id=12, status_id=0)])
     dialogue = Dialogue()
     command_handlers = CommandHandlers(hospital=hospital, dialogue=dialogue)
+    dialogue.user_print_message = MagicMock()
     command_handlers.status_down(patient_id=12)
     patient = hospital._get_patient_by_id(patient_id=12)
-    captured_status_down = capsys.readouterr()
     assert patient.status_id == 0
-    expected_result = 'Ошибка. Нельзя понизить самый низкий статус (наши пациенты не умирают)\n'
-    assert expected_result == captured_status_down.out
+    dialogue.user_print_message.assert_called_once_with('Ошибка. Нельзя понизить самый низкий статус (наши пациенты не умирают)')
 
 
 def test_handler_discharge(capsys):
     hospital = Hospital(patients=[Patient(id=10, status_id=1)])
     dialogue = Dialogue()
     command_handlers = CommandHandlers(hospital=hospital, dialogue=dialogue)
+    dialogue.user_print_message = MagicMock()
     command_handlers.discharge(patient_id=10)
-    captured_discharge = capsys.readouterr()
     assert hospital._get_patient_by_id(10) is None
-    assert captured_discharge.out == 'Пациент выписан из больницы\n'
+    dialogue.user_print_message.assert_called_once_with('Пациент выписан из больницы')
