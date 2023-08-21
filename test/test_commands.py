@@ -3,7 +3,6 @@ from unittest.mock import MagicMock
 from commands import Commands, CommandHandlers
 from patient import Patient
 from hospital import Hospital
-from dialogue import Dialogue
 
 
 def test_is_get_status():
@@ -68,74 +67,82 @@ def test_negative_is_stop():
 
 def test_handler_get_status():
     hospital = Hospital(patients=[Patient(id=11, status_id=3)])
-    dialogue = Dialogue()
+    dialogue = MagicMock()
     command_handlers = CommandHandlers(hospital=hospital, dialogue=dialogue)
+    dialogue.user_input_patient_id = MagicMock(return_value=11)
     dialogue.user_print_message = MagicMock()
-    command_handlers.get_status(11)
+    command_handlers.get_status()
     dialogue.user_print_message.assert_called_once_with('Статус пациента: Готов к выписке')
-
-
-def test_handler_status_up():
-    hospital = Hospital(patients=[Patient(id=10, status_id=1)])
-    dialogue = Dialogue()
-    command_handlers = CommandHandlers(hospital=hospital, dialogue=dialogue)
-    dialogue.user_print_message = MagicMock()
-    command_handlers.status_up(10)
-    patient = hospital._get_patient_by_id(10)
-    assert patient.status_id == 2
-    dialogue.user_print_message.assert_called_once_with('Новый статус пациента: Слегка болен')
-
-
-def test_user_refused_status_up():
-    hospital = Hospital(patients=[Patient(id=11, status_id=3)])
-    dialogue = Dialogue()
-    command_handlers = CommandHandlers(hospital=hospital, dialogue=dialogue)
-    dialogue.user_input_need_discharge_patient = MagicMock(return_value=False)
-    dialogue.user_print_message = MagicMock()
-    command_handlers.status_up(patient_id=11)
-    patient = hospital._get_patient_by_id(patient_id=11)
-    assert patient.status_id == 3
-    dialogue.user_print_message.assert_called_once_with('Пациент остался в статусе "Готов к выписке"')
-
-
-def test_user_agreed_status_up():
-    hospital = Hospital(patients=[Patient(id=11, status_id=3)])
-    dialogue = Dialogue()
-    command_handlers = CommandHandlers(hospital=hospital, dialogue=dialogue)
-    dialogue.user_input_need_discharge_patient = MagicMock(return_value=True)
-    dialogue.user_print_message = MagicMock()
-    command_handlers.status_up(patient_id=11)
-    assert hospital._get_patient_by_id(patient_id=11) is None
-    dialogue.user_print_message.assert_called_once_with('Пациент выписан из больницы')
 
 
 def test_handler_status_down():
     hospital = Hospital(patients=[Patient(id=10, status_id=1)])
-    dialogue = Dialogue()
+    dialogue = MagicMock()
     command_handlers = CommandHandlers(hospital=hospital, dialogue=dialogue)
+    dialogue.user_input_patient_id = MagicMock(return_value=10)
     dialogue.user_print_message = MagicMock()
-    command_handlers.status_down(patient_id=10)
+    command_handlers.status_down()
     patient = hospital._get_patient_by_id(patient_id=10)
     assert patient.status_id == 0
     dialogue.user_print_message.assert_called_once_with('Новый статус пациента: Тяжело болен')
 
 
-def test_negative_handler_status_down():
-    hospital = Hospital(patients=[Patient(id=12, status_id=0)])
-    dialogue = Dialogue()
-    command_handlers = CommandHandlers(hospital=hospital, dialogue=dialogue)
-    dialogue.user_print_message = MagicMock()
-    command_handlers.status_down(patient_id=12)
-    patient = hospital._get_patient_by_id(patient_id=12)
-    assert patient.status_id == 0
-    dialogue.user_print_message.assert_called_once_with('Ошибка. Нельзя понизить самый низкий статус (наши пациенты не умирают)')
-
-
-def test_handler_discharge(capsys):
+def test_handler_discharge():
     hospital = Hospital(patients=[Patient(id=10, status_id=1)])
-    dialogue = Dialogue()
+    dialogue = MagicMock()
     command_handlers = CommandHandlers(hospital=hospital, dialogue=dialogue)
+    dialogue.user_input_patient_id = MagicMock(return_value=10)
     dialogue.user_print_message = MagicMock()
-    command_handlers.discharge(patient_id=10)
+    command_handlers.discharge()
     assert hospital._get_patient_by_id(10) is None
     dialogue.user_print_message.assert_called_once_with('Пациент выписан из больницы')
+
+
+def test_status_down_error_handling():
+    hospital = Hospital([Patient(id=14, status_id=0)])
+    dialogue = MagicMock()
+    command_handlers = CommandHandlers(hospital=hospital, dialogue=dialogue)
+    dialogue.user_input_patient_id = MagicMock(return_value=14)
+    dialogue.user_print_message = MagicMock()
+    command_handlers.status_down()
+    patient = hospital._get_patient_by_id(patient_id=14)
+    assert patient.status_id == 0
+    dialogue.user_print_message.assert_called_once_with('Ошибка. Нельзя понизить самый низкий статус '
+                                                        '(наши пациенты не умирают)')
+
+
+def test_status_up():
+    hospital = Hospital([Patient(id=10, status_id=1)])
+    dialogue = MagicMock()
+    command_handlers = CommandHandlers(hospital=hospital, dialogue=dialogue)
+    dialogue.user_input_patient_id = MagicMock(return_value=10)
+    dialogue.user_print_message = MagicMock()
+    patient = hospital._get_patient_by_id(patient_id=10)
+    command_handlers.status_up()
+    assert patient.status_id == 2
+    dialogue.user_print_message.assert_called_once_with('Новый статус пациента: Слегка болен')
+
+
+def test_processing_max_status_up_if_yes():
+    hospital = Hospital([Patient(id=10, status_id=3)])
+    dialogue = MagicMock()
+    command_handlers = CommandHandlers(hospital=hospital, dialogue=dialogue)
+    dialogue.user_input_patient_id = MagicMock(return_value=10)
+    dialogue.user_input_need_discharge_patient = MagicMock(return_value=True)
+    dialogue.user_print_message = MagicMock()
+    command_handlers.status_up()
+    dialogue.user_print_message.assert_called_with('Пациент выписан из больницы')
+    assert not hospital._get_patient_by_id(patient_id=10)
+
+
+def test_processing_max_status_up_if_not():
+    hospital = Hospital([Patient(id=10, status_id=3)])
+    dialogue = MagicMock()
+    command_handlers = CommandHandlers(hospital=hospital, dialogue=dialogue)
+    dialogue.user_input_patient_id = MagicMock(return_value=10)
+    dialogue.user_input_need_discharge_patient = MagicMock(return_value=False)
+    dialogue.user_print_message = MagicMock()
+    patient = hospital._get_patient_by_id(patient_id=10)
+    command_handlers.status_up()
+    dialogue.user_print_message.assert_called_with('Пациент остался в статусе "Готов к выписке"')
+    assert patient.status_id == 3

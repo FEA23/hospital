@@ -1,3 +1,4 @@
+from custom_exceptions import MinStatusCannotDownError, PatientNotExistsError, PatientIdNotIntegerAndPositiveError
 
 
 class Commands:
@@ -51,35 +52,52 @@ class CommandHandlers:
         self._dialogue = dialogue
         self._hospital = hospital
 
-    def get_status(self, patient_id: int):
-        patient_status_name = self._hospital.get_status_name_by_patient_id(patient_id)
-        self._dialogue.user_print_message(f'Статус пациента: {patient_status_name}')
+    def get_status(self):
+        try:
+            patient_id = self._dialogue.user_input_patient_id()
+            patient_status_name = self._hospital.get_status_name_by_patient_id(patient_id)
+            self._dialogue.user_print_message(f'Статус пациента: {patient_status_name}')
+        except (PatientNotExistsError, PatientIdNotIntegerAndPositiveError) as err:
+            self._dialogue.user_print_message(str(err))
 
     def calculate_statistic(self):
         hospital_stats = self._hospital.display_statistics()
         print(hospital_stats)
 
-    def discharge(self, patient_id: int):
-        self._hospital.discharge(patient_id)
-        self._dialogue.user_print_message('Пациент выписан из больницы')
+    def discharge(self):
+        try:
+            patient_id = self._dialogue.user_input_patient_id()
+            self._hospital.discharge(patient_id)
+            self._dialogue.user_print_message('Пациент выписан из больницы')
+        except (PatientNotExistsError, PatientIdNotIntegerAndPositiveError) as err:
+            self._dialogue.user_print_message(str(err))
 
-    def status_down(self, patient_id: int):
-        if self._hospital.can_status_down(patient_id):
+    def status_down(self):
+        try:
+            patient_id = self._dialogue.user_input_patient_id()
             self._hospital.patient_status_down(patient_id)
             new_status_name = self._hospital.get_status_name_by_patient_id(patient_id)
             self._dialogue.user_print_message(f'Новый статус пациента: {new_status_name}')
-        else:
-            self._dialogue.user_print_message('Ошибка. Нельзя понизить самый низкий статус (наши пациенты не умирают)')
+        except (MinStatusCannotDownError, PatientNotExistsError, PatientIdNotIntegerAndPositiveError) as err:
+            self._dialogue.user_print_message(str(err))
 
-    def status_up(self, patient_id: int):
-        if self._hospital.can_status_up(patient_id):
-            self._hospital.patient_status_up(patient_id)
-            new_status_name = self._hospital.get_status_name_by_patient_id(patient_id)
-            self._dialogue.user_print_message(f'Новый статус пациента: {new_status_name}')
-        else:
-            need_discharge = self._dialogue.user_input_need_discharge_patient()
-            if need_discharge:
-                self.discharge(patient_id)
+    def status_up(self):
+        try:
+            patient_id = self._dialogue.user_input_patient_id()
+
+            if not self._hospital.patient_exists(patient_id):
+                raise PatientNotExistsError
+
+            if self._hospital.can_status_up(patient_id):
+                self._hospital.patient_status_up(patient_id)
+                new_status_name = self._hospital.get_status_name_by_patient_id(patient_id)
+                self._dialogue.user_print_message(f'Новый статус пациента: {new_status_name}')
+
             else:
-                status_name = self._hospital.get_status_name_by_patient_id(patient_id)
-                self._dialogue.user_print_message(f'Пациент остался в статусе "{status_name}"')
+                if self._dialogue.user_input_need_discharge_patient():
+                    self._hospital.discharge(patient_id)
+                    self._dialogue.user_print_message('Пациент выписан из больницы')
+                else:
+                    self._dialogue.user_print_message('Пациент остался в статусе "Готов к выписке"')
+        except (PatientNotExistsError, PatientIdNotIntegerAndPositiveError) as err:
+            self._dialogue.user_print_message(str(err))

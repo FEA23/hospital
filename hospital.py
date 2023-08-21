@@ -1,13 +1,6 @@
 from typing import Union
 from patient import Patient, PATIENT_STATUSES
-
-
-class CantLowerStatusError(Exception):
-    pass
-
-
-class CantIncreaseStatusError(Exception):
-    pass
+from custom_exceptions import MinStatusCannotDownError, MaxStatusCannotUpError, PatientNotExistsError
 
 
 class Hospital:
@@ -27,6 +20,7 @@ class Hospital:
         return None
 
     def get_status_name_by_patient_id(self, patient_id: int) -> Union[str, None]:
+        self._verify_patient_exists(patient_id)
         patient = self._get_patient_by_id(patient_id)
         return patient.status_name if patient else None
 
@@ -35,8 +29,9 @@ class Hospital:
         return patient.status_id > self._min_status_id
 
     def patient_status_down(self, patient_id: int):
+        self._verify_patient_exists(patient_id)
         if not self.can_status_down(patient_id):
-            raise CantLowerStatusError("Нельзя понизить минимальный статус пациента.")
+            raise MinStatusCannotDownError
         patient = self._get_patient_by_id(patient_id)
         patient.status_id -= 1
 
@@ -45,12 +40,14 @@ class Hospital:
         return patient.status_id < self._max_status_id
 
     def patient_status_up(self, patient_id: int):
+        self._verify_patient_exists(patient_id)
         if not self.can_status_up(patient_id):
-            raise CantIncreaseStatusError("Нельзя повысить максимальный статус")
+            raise MaxStatusCannotUpError
         patient = self._get_patient_by_id(patient_id)
         patient.status_id += 1
 
     def discharge(self, patient_id: int):
+        self._verify_patient_exists(patient_id)
         patient = self._get_patient_by_id(patient_id)
         if patient in self._patients:
             self._patients.remove(patient)
@@ -78,3 +75,7 @@ class Hospital:
     def patient_exists(self, patient_id):
         patient = self._get_patient_by_id(patient_id)
         return patient is not None
+
+    def _verify_patient_exists(self, patient_id):
+        if not self.patient_exists(patient_id):
+            raise PatientNotExistsError

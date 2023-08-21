@@ -1,9 +1,10 @@
 from hospital import Hospital
 from dialogue import Dialogue
 from commands import Commands, CommandHandlers
+from console import Console
 
 hospital = Hospital()
-dialogue = Dialogue()
+dialogue = Dialogue(Console)
 
 command_handlers = CommandHandlers(dialogue, hospital)
 
@@ -22,24 +23,14 @@ if __name__ == '__main__':
             dialogue.user_print_message('Сеанс завершён.')
             break
 
-        patient_id = dialogue.user_input_patient_id()
-        if patient_id is None:
-            dialogue.user_print_message('Ошибка. ID пациента должно быть числом (целым, положительным)')
-            continue
-
-        #Надо будет убрать hospital
-        if not hospital.patient_exists(patient_id):
-            dialogue.user_print_message('Ошибка. В больнице нет пациента с таким ID')
-            continue
-
         if command.is_discharge():
-            command_handlers.discharge(patient_id)
+            command_handlers.discharge()
 
         if command.is_get_status():
-            command_handlers.get_status(patient_id)
+            command_handlers.get_status()
 
         if command.is_down_status():
-            command_handlers.status_down(patient_id)
+            command_handlers.status_down()
 
         if command.is_up_status():
-            command_handlers.status_up(patient_id)
+            command_handlers.status_up()

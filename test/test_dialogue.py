@@ -2,20 +2,22 @@ import pytest
 
 from dialogue import Dialogue
 from commands import Commands
+from console import Console
+from custom_exceptions import PatientIdNotIntegerAndPositiveError
 
 
 def test_user_input_patient_id(monkeypatch):
-    dialogue = Dialogue()
+    dialogue = Dialogue(Console)
     monkeypatch.setattr('builtins.input', lambda _: "3")
     patient_id = dialogue.user_input_patient_id()
     assert patient_id == 3
 
 
 def test_negative_user_input_patient_id(monkeypatch):
-    dialogue = Dialogue()
+    dialogue = Dialogue(Console)
     monkeypatch.setattr('builtins.input', lambda _: 'abc')
-    patient_id = dialogue.user_input_patient_id()
-    assert patient_id is None
+    with pytest.raises(PatientIdNotIntegerAndPositiveError):
+        dialogue.user_input_patient_id()
 
 
 @pytest.mark.parametrize("input_command, expected_command", [
@@ -45,7 +47,7 @@ def test_negative_user_input_main_command(monkeypatch, input_command, expected_c
 
 
 def test_user_input_need_discharge_patient(monkeypatch):
-    dialogue = Dialogue()
+    dialogue = Dialogue(Console)
     monkeypatch.setattr('builtins.input', lambda _: "да")
     need_discharge = dialogue.user_input_need_discharge_patient()
     assert need_discharge
@@ -59,7 +61,7 @@ def test_user_input_need_discharge_patient(monkeypatch):
     'Желаю'
 ])
 def test_negative_user_input_need_discharge_patient(monkeypatch, answer):
-    dialogue = Dialogue()
+    dialogue = Dialogue(Console)
     monkeypatch.setattr('builtins.input', lambda _: answer)
     need_discharge = dialogue.user_input_need_discharge_patient()
     assert not need_discharge

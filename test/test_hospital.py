@@ -1,7 +1,8 @@
 import pytest
 
-from hospital import Hospital, CantLowerStatusError, CantIncreaseStatusError
+from hospital import Hospital
 from patient import Patient
+from custom_exceptions import MinStatusCannotDownError, MaxStatusCannotUpError
 
 
 def test_discharge():
@@ -62,7 +63,7 @@ def test_status_up():
 
 def test_negative_status_up():
     hospital = Hospital(patients=[Patient(id=77, status_id=3)])
-    with pytest.raises(CantIncreaseStatusError):
+    with pytest.raises(MaxStatusCannotUpError):
         hospital.patient_status_up(77)
 
 
@@ -87,7 +88,7 @@ def test_status_down():
 
 def test_negative_status_down():
     hospital = Hospital(patients=[Patient(id=77, status_id=0)])
-    with pytest.raises(CantLowerStatusError):
+    with pytest.raises(MinStatusCannotDownError):
         hospital.patient_status_down(77)
 
 
