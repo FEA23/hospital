@@ -1,8 +1,8 @@
 from unittest.mock import MagicMock
-
 from commands import Commands, CommandHandlers
 from patient import Patient
 from hospital import Hospital
+from custom_exceptions import PatientIdNotIntegerAndPositiveError, PatientNotExistsError
 
 
 def test_is_get_status():
@@ -75,6 +75,27 @@ def test_handler_get_status():
     dialogue.user_print_message.assert_called_once_with('Статус пациента: Готов к выписке')
 
 
+def test_get_status_error_not_integer():
+    hospital = MagicMock()
+    dialogue = MagicMock()
+    command_handlers = CommandHandlers(hospital=hospital, dialogue=dialogue)
+    dialogue.user_input_patient_id = MagicMock(side_effect=PatientIdNotIntegerAndPositiveError)
+    dialogue.user_print_message = MagicMock()
+    command_handlers.get_status()
+    dialogue.user_print_message.assert_called_once_with('Ошибка ввода. ID пациента должно быть числом '
+                                                        '(целым, положительным)')
+
+
+def test_get_status_error_not_exists():
+    hospital = MagicMock()
+    dialogue = MagicMock()
+    command_handlers = CommandHandlers(hospital=hospital, dialogue=dialogue)
+    dialogue.user_input_patient_id = MagicMock(side_effect=PatientNotExistsError)
+    dialogue.user_print_message = MagicMock()
+    command_handlers.get_status()
+    dialogue.user_print_message.assert_called_once_with('Ошибка. В больнице нет пациента с таким ID')
+
+
 def test_handler_status_down():
     hospital = Hospital(patients=[Patient(id=10, status_id=1)])
     dialogue = MagicMock()
@@ -87,15 +108,25 @@ def test_handler_status_down():
     dialogue.user_print_message.assert_called_once_with('Новый статус пациента: Тяжело болен')
 
 
-def test_handler_discharge():
-    hospital = Hospital(patients=[Patient(id=10, status_id=1)])
+def test_status_down_error_not_exists():
+    hospital = MagicMock()
     dialogue = MagicMock()
     command_handlers = CommandHandlers(hospital=hospital, dialogue=dialogue)
-    dialogue.user_input_patient_id = MagicMock(return_value=10)
+    dialogue.user_input_patient_id = MagicMock(side_effect=PatientNotExistsError)
     dialogue.user_print_message = MagicMock()
-    command_handlers.discharge()
-    assert hospital._get_patient_by_id(10) is None
-    dialogue.user_print_message.assert_called_once_with('Пациент выписан из больницы')
+    command_handlers.get_status()
+    dialogue.user_print_message.assert_called_once_with('Ошибка. В больнице нет пациента с таким ID')
+
+
+def test_status_down_error_not_integer():
+    hospital = MagicMock()
+    dialogue = MagicMock()
+    command_handlers = CommandHandlers(hospital=hospital, dialogue=dialogue)
+    dialogue.user_input_patient_id = MagicMock(side_effect=PatientIdNotIntegerAndPositiveError)
+    dialogue.user_print_message = MagicMock()
+    command_handlers.status_down()
+    dialogue.user_print_message.assert_called_once_with('Ошибка ввода. ID пациента должно быть числом '
+                                                        '(целым, положительным)')
 
 
 def test_status_down_error_handling():
@@ -109,6 +140,38 @@ def test_status_down_error_handling():
     assert patient.status_id == 0
     dialogue.user_print_message.assert_called_once_with('Ошибка. Нельзя понизить самый низкий статус '
                                                         '(наши пациенты не умирают)')
+
+
+def test_handler_discharge():
+    hospital = Hospital(patients=[Patient(id=10, status_id=1)])
+    dialogue = MagicMock()
+    command_handlers = CommandHandlers(hospital=hospital, dialogue=dialogue)
+    dialogue.user_input_patient_id = MagicMock(return_value=10)
+    dialogue.user_print_message = MagicMock()
+    command_handlers.discharge()
+    assert hospital._get_patient_by_id(10) is None
+    dialogue.user_print_message.assert_called_once_with('Пациент выписан из больницы')
+
+
+def test_discharge_error_not_exists():
+    hospital = MagicMock()
+    dialogue = MagicMock()
+    command_handlers = CommandHandlers(hospital=hospital, dialogue=dialogue)
+    dialogue.user_input_patient_id = MagicMock(side_effect=PatientNotExistsError)
+    dialogue.user_print_message = MagicMock()
+    command_handlers.discharge()
+    dialogue.user_print_message.assert_called_once_with('Ошибка. В больнице нет пациента с таким ID')
+
+
+def test_discharge_error_not_integer():
+    hospital = MagicMock()
+    dialogue = MagicMock()
+    command_handlers = CommandHandlers(hospital=hospital, dialogue=dialogue)
+    dialogue.user_input_patient_id = MagicMock(side_effect=PatientIdNotIntegerAndPositiveError)
+    dialogue.user_print_message = MagicMock()
+    command_handlers.status_down()
+    dialogue.user_print_message.assert_called_once_with('Ошибка ввода. ID пациента должно быть числом '
+                                                        '(целым, положительным)')
 
 
 def test_status_up():
@@ -146,3 +209,24 @@ def test_processing_max_status_up_if_not():
     command_handlers.status_up()
     dialogue.user_print_message.assert_called_with('Пациент остался в статусе "Готов к выписке"')
     assert patient.status_id == 3
+
+
+def test_status_up_error_not_exists():
+    hospital = MagicMock()
+    dialogue = MagicMock()
+    command_handlers = CommandHandlers(hospital=hospital, dialogue=dialogue)
+    dialogue.user_input_patient_id = MagicMock(side_effect=PatientNotExistsError)
+    dialogue.user_print_message = MagicMock()
+    command_handlers.status_up()
+    dialogue.user_print_message.assert_called_once_with('Ошибка. В больнице нет пациента с таким ID')
+
+
+def test_status_up_error_not_integer():
+    hospital = MagicMock()
+    dialogue = MagicMock()
+    command_handlers = CommandHandlers(hospital=hospital, dialogue=dialogue)
+    dialogue.user_input_patient_id = MagicMock(side_effect=PatientIdNotIntegerAndPositiveError)
+    dialogue.user_print_message = MagicMock()
+    command_handlers.status_up()
+    dialogue.user_print_message.assert_called_once_with('Ошибка ввода. ID пациента должно быть числом '
+                                                        '(целым, положительным)')

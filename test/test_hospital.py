@@ -2,7 +2,7 @@ import pytest
 
 from hospital import Hospital
 from patient import Patient
-from custom_exceptions import MinStatusCannotDownError, MaxStatusCannotUpError
+from custom_exceptions import MinStatusCannotDownError, MaxStatusCannotUpError, PatientNotExistsError
 
 
 def test_discharge():
@@ -100,3 +100,15 @@ def test_patient_exists():
 def test_negative_patient_exists():
     hospital = Hospital()
     assert not hospital.patient_exists(201)
+
+
+def test_verify_patient_exists():
+    hospital = Hospital()
+    hospital.patient_exists(10)
+
+
+def test_not_verify_patient_exists():
+    hospital = Hospital()
+    with pytest.raises(PatientNotExistsError) as err:
+        hospital._verify_patient_exists(201)
+    assert str(err.value) == 'Ошибка. В больнице нет пациента с таким ID'

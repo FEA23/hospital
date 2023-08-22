@@ -16,8 +16,9 @@ def test_user_input_patient_id(monkeypatch):
 def test_negative_user_input_patient_id(monkeypatch):
     dialogue = Dialogue(Console)
     monkeypatch.setattr('builtins.input', lambda _: 'abc')
-    with pytest.raises(PatientIdNotIntegerAndPositiveError):
+    with pytest.raises(PatientIdNotIntegerAndPositiveError) as err:
         dialogue.user_input_patient_id()
+    assert str(err.value) == 'Ошибка ввода. ID пациента должно быть числом (целым, положительным)'
 
 
 @pytest.mark.parametrize("input_command, expected_command", [

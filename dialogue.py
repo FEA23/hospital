@@ -1,4 +1,3 @@
-from typing import Union
 from commands import Commands
 from custom_exceptions import PatientIdNotIntegerAndPositiveError
 
@@ -17,7 +16,7 @@ class Dialogue:
     def user_print_message(self, message):
         self._console.print_user(message)
 
-    def user_input_patient_id(self):
+    def user_input_patient_id(self) -> int:
         patient_id = self._format_user_response(self._patient_id_text_for_user)
         if not patient_id.isdigit():
             raise PatientIdNotIntegerAndPositiveError
